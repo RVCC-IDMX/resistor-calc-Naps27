@@ -1,24 +1,74 @@
-import { getResistorOhms } from './resistor';
+import { getResistorOhms } from './resistor.js';
 
-function updateResistor() {
-  const color0 = document.getElementById('color0').value;
-  const color1 = document.getElementById('color1').value;
-  const color2 = document.getElementById('color2').value;
-  const color3 = document.getElementById('color3').value;
+document.addEventListener('DOMContentLoaded', () => {
+  addColorBoxListeners();
+});
 
-  const resistor = document.getElementById('resistor');
-  resistor.style.background = `linear-gradient(to right, ${color0}, ${color1}, ${color2}, ${color3})`;
+function addColorBoxListeners() {
+  for (let i = 0; i <= 3; i++) {
+    const colorBoxes = document.getElementById(`color${i}`).getElementsByClassName('box');
+    for (const box of colorBoxes) {
+      box.addEventListener('click', () => {
 
-  const bands = { color1, color2, multiplier: color3, tolerance: 'brown' };
-  const resistorValue = getResistorOhms(bands);
-
-  document.getElementById('resistor-value').textContent = resistorValue;
+        const boxesInContainer = box.parentElement.getElementsByClassName('box');
+        for (const b of boxesInContainer) {
+          b.classList.remove('box-selected');
+        }
+        box.classList.add('box-selected');
+        updateColor(i, box.textContent.toLowerCase());
+        calculateResistor();
+      });
+    }
+  }
 }
 
-document.getElementById('color0').addEventListener('change', updateResistor);
-document.getElementById('color1').addEventListener('change', updateResistor);
-document.getElementById('color2').addEventListener('change', updateResistor);
-document.getElementById('color3').addEventListener('change', updateResistor);
+function updateColor(band, color) {
+  const bandElement = document.getElementById(`b${band}`);
+  if (bandElement) {
+    bandElement.className = `band ${color}`;
+  }
+}
 
-updateResistor();
+function calculateResistor() {
+  const bands = {
+    color1: getColorValue('color0'),
+    color2: getColorValue('color1'),
+    multiplier: getMultiplierValue('color2'),
+    tolerance: getTolerance('color3'),
+  };
+
+  if (bands.color1 !== '' && bands.color2 !== '' && bands.multiplier !== '' && bands.tolerance !== '') {
+    const resistorValue = getResistorOhms(bands);
+    const resistorValueElement = document.getElementById("resistorValue");
+
+    if (resistorValueElement) {
+      resistorValueElement.textContent = resistorValue;
+    }
+  }
+}
+
+
+function getColorValue(colorContainerId) {
+  const colorContainer = document.getElementById(colorContainerId);
+  const selectedBox = colorContainer ? colorContainer.querySelector('.box-selected') : null;
+  return selectedBox ? selectedBox.textContent.toLowerCase() : '';
+}
+
+function getMultiplierValue(colorContainerId) {
+  const colorContainer = document.getElementById(colorContainerId);
+  const selectedBox = colorContainer ? colorContainer.querySelector('.box-selected') : null;
+  return selectedBox ? selectedBox.textContent.toLowerCase() : '';
+}
+
+function getTolerance(colorContainerId) {
+  const colorContainer = document.getElementById(colorContainerId);
+  const selectedBox = colorContainer ? colorContainer.querySelector('.box-selected') : null;
+  return selectedBox ? selectedBox.textContent.toLowerCase() : '';
+}
+
+
+
+
+
+
 
